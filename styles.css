@@ -1584,3 +1584,18 @@ body {
     max-width: 100% !important;
   }
 }
+
+/* ---- Additions: map, overdue, info page ---- */
+.pick-map{height:300px;margin-top:10px;border:1px solid var(--border,#cbd5e1);border-radius:4px;z-index:0}
+.form-hint{display:block;margin-top:4px;color:#475569;font-size:.8rem}
+.overdue-banner{background:#fef2f2;border-left:4px solid #b91c1c;color:#7f1d1d;padding:10px 14px;margin:12px 0;font-weight:600}
+.overdue-banner[hidden]{display:none}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.info-card{background:#fff;border:1px solid #cbd5e1;border-top:3px solid #b45309;padding:16px}
+.info-card h3{margin:0 0 10px}
+.info-card ul{padding-left:18px;line-height:1.6}
+.info-table{width:100%;border-collapse:collapse}
+.info-table th,.info-table td{border-bottom:1px solid #e2e8f0;padding:6px;text-align:left}
+.info-card details{border-bottom:1px solid #e2e8f0;padding:8px 0}
+.info-card summary{cursor:pointer;font-weight:600}
+@media (max-width:640px){.pick-map{height:240px}}

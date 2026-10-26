@@ -354,6 +354,7 @@ class MunicipalWasteApp {
   }
 
   saveReports() {
+    if (window.mbmcBackend && window.mbmcBackend.enabled) { this.updateKPIs(); this.renderWardOverview(); return; }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.reports));
     } catch (e) {
@@ -364,6 +365,7 @@ class MunicipalWasteApp {
   }
 
   resetToDefaultData() {
+    if (window.mbmcBackend && window.mbmcBackend.enabled) { this.showToast("Reset is disabled when a live database is connected.", "info"); return; }
     if (confirm("Reset MBMC database to official demo records? All newly entered reports will be restored to default seed.")) {
       this.reports = [...INITIAL_REPORTS_DB];
       this.saveReports();
@@ -472,23 +474,9 @@ class MunicipalWasteApp {
       });
     }
 
-    // GPS Helper Simulation
+    // Real GPS (see extras.js)
     if (this.gpsHelperBtn) {
-      this.gpsHelperBtn.addEventListener("click", () => {
-        this.gpsHelperBtn.innerHTML = "📍 Detecting...";
-        setTimeout(() => {
-          const sampleCoords = [
-            "19.2815° N, 72.8685° E (Kanakia Road, Mira Road East)",
-            "19.3080° N, 72.8425° E (60 Feet Road, Near Maxus Mall, Bhayandar West)",
-            "19.3035° N, 72.8538° E (Jesal Park Chowpatty, Bhayandar East)",
-            "19.2942° N, 72.7920° E (Uttan Coastal Village, Bhayandar West)"
-          ];
-          const randomCoord = sampleCoords[Math.floor(Math.random() * sampleCoords.length)];
-          this.locationInput.value = (this.locationInput.value ? this.locationInput.value + " | Geotag: " : "Geotagged: ") + randomCoord;
-          this.gpsHelperBtn.innerHTML = "📍 GPS Set ✓";
-          this.showToast("GPS Geocoordinates attached to MBMC grievance location.", "info");
-        }, 400);
-      });
+      this.gpsHelperBtn.addEventListener("click", () => window.mbmcDetectGps(this));
     }
 
     // Photo Upload & Preview
@@ -581,6 +569,7 @@ class MunicipalWasteApp {
     // Officer Toggle Button
     if (this.officerToggleBtn) {
       this.officerToggleBtn.addEventListener("click", () => {
+        if (window.mbmcBackend && window.mbmcBackend.enabled) { window.mbmcBackend.toggleOfficer(); return; }
         this.isOfficerMode = !this.isOfficerMode;
         localStorage.setItem(OFFICER_MODE_KEY, this.isOfficerMode);
         this.updateOfficerUI();
@@ -660,7 +649,7 @@ class MunicipalWasteApp {
     reader.onload = (e) => {
       this.uploadedImageData = e.target.result;
       this.previewImg.src = this.uploadedImageData;
-      this.previewMeta.innerHTML = `<strong>${file.name}</strong><br><span style="color:var(--text-light);">${(file.size / 1024).toFixed(1)} KB - Geotagged Photo Ready</span>`;
+      this.previewMeta.innerHTML = `<strong>${this.escapeHTML(file.name)}</strong><br><span style="color:var(--text-light);">${(file.size / 1024).toFixed(1)} KB - Geotagged Photo Ready</span>`;
       this.previewContainer.style.display = "flex";
       this.dropzone.style.display = "none";
     };
@@ -692,7 +681,8 @@ class MunicipalWasteApp {
       "report": "Citizen Grievance Redressal (File Report)",
       "ledger": "Public Ledger & Real-Time Tracking",
       "analytics": "Ward-by-Ward Waste Density Analytics",
-      "officer": "MBMC Staff & Inspector Console"
+      "officer": "MBMC Staff & Inspector Console",
+      "info": "Citizen Information"
     };
     if (this.breadcrumbCurrent) {
       this.breadcrumbCurrent.textContent = viewLabels[viewId] || "Dashboard";
@@ -723,6 +713,17 @@ class MunicipalWasteApp {
     const urgency = urgencyRadio ? urgencyRadio.value : "Medium";
     const description = (document.getElementById("reportDescription").value || "").trim();
 
+    if (document.getElementById("hpWebsite").value) return; // honeypot: bots fill this
+    if (!isAnon && phone && phone !== "Not provided" && !/^(\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}$/.test(phone)) {
+      alert("Please enter a valid 10-digit Indian mobile number.");
+      return;
+    }
+    const lastSubmit = Number(localStorage.getItem("MBMC_LAST_SUBMIT") || 0);
+    if (Date.now() - lastSubmit < 60000) {
+      alert("Please wait a minute before filing another grievance.");
+      return;
+    }
+    localStorage.setItem("MBMC_LAST_SUBMIT", Date.now());
     if (!ward || !location || !category || !description) {
       alert("Please fill in all required official grievance fields marked with *.");
       return;
@@ -751,7 +752,7 @@ class MunicipalWasteApp {
       ward: ward,
       zone: zone,
       location: location,
-      coordinates: "GPS Tagged Location (" + (19.27 + Math.random() * 0.04).toFixed(4) + "° N, " + (72.84 + Math.random() * 0.03).toFixed(4) + "° E)",
+      coordinates: this.picked ? this.picked.lat.toFixed(5) + "° N, " + this.picked.lng.toFixed(5) + "° E" : "Not pinned ("  + (19.27 + Math.random() * 0.04).toFixed(4) + "° N, " + (72.84 + Math.random() * 0.03).toFixed(4) + "° E)",
       category: category,
       urgency: urgency,
       description: description,
@@ -780,9 +781,17 @@ class MunicipalWasteApp {
     // Prepend to database
     this.reports.unshift(newReport);
     this.saveReports();
+    if (window.mbmcBackend && window.mbmcBackend.enabled) {
+      window.mbmcBackend.insert(newReport).then(() => this.renderAll()).catch(err => {
+        this.reports = this.reports.filter(r => r.id !== newReport.id); this.renderAll();
+        this.showToast("Could not submit grievance: " + err.message, "info");
+      });
+    }
 
     // Reset Form
     this.reportForm.reset();
+    this.picked = null;
+    if (window.mbmcClearPin) window.mbmcClearPin();
     this.uploadedImageData = "";
     if (this.previewContainer) this.previewContainer.style.display = "none";
     if (this.dropzone) this.dropzone.style.display = "block";
@@ -1052,6 +1061,9 @@ class MunicipalWasteApp {
       });
 
       this.saveReports();
+      if (window.mbmcBackend && window.mbmcBackend.enabled) {
+        window.mbmcBackend.update(this.reports[reportIndex]).catch(err => this.showToast("Update failed (are you signed in as staff?): " + err.message, "info"));
+      }
       this.closeAllModals();
       this.renderAll();
       this.showToast(`Report ${this.selectedReportForOfficer.id} successfully updated to [${newStatus}].`, "success");

@@ -118,3 +118,19 @@ This application is 100% static and configured for instant zero-configuration de
 Indira Gandhi Bhavan, Chhatrapati Shivaji Maharaj Marg,  
 Bhayandar West, District Thane, Maharashtra - 401101  
 **Toll-Free Sanitation Helpline:** 1800-22-4848 / 022-28119272
+
+---
+
+## 🔌 Backend Setup (Supabase) - required for a real, multi-user portal
+
+Without this, the site runs in **local demo mode** (data stays in each visitor's browser).
+
+1. Create a free project at supabase.com.
+2. **SQL Editor** → paste all of `schema.sql` → Run. (Tables, Row Level Security, photo bucket, realtime, flood guard.)
+3. **Project Settings → API** → copy *Project URL* and *anon public key* into `config.js`. Never use the `service_role` key in the frontend.
+4. **Authentication → Users → Add user** (email + password) for each officer. Then in SQL Editor:
+   `update profiles set role = 'inspector' where id = '<that user's uuid>';`
+   (roles: `inspector`, `ward_officer`, `admin`).
+5. Commit and push; Vercel redeploys automatically.
+
+**How it works:** citizens file grievances anonymously (insert-only). Everyone can read the public ledger, but name/phone live in `grievance_private`, readable only by staff. Only signed-in staff can change status. Photos are compressed in the browser and stored in the `evidence` bucket. Ledger updates live via Supabase Realtime.
