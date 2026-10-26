@@ -1599,3 +1599,4 @@ body {
 .info-card details{border-bottom:1px solid #e2e8f0;padding:8px 0}
 .info-card summary{cursor:pointer;font-weight:600}
 @media (max-width:640px){.pick-map{height:240px}}
+#view-info { padding: 0 24px 32px; max-width: 1200px; margin: 0 auto; }
