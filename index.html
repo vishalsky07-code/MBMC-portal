@@ -6,6 +6,12 @@
   <title>Mira Bhayandar Municipal Corporation - Solid Waste Management & Grievance Portal</title>
   <meta name="description" content="Official Mira Bhayandar Municipal Corporation (MBMC) Solid Waste Management Portal - Citizen Grievance Filing, Swachh Bharat Public Tracking Ledger, and Sanitary Inspector Live Monitoring System.">
   <meta name="theme-color" content="#07192f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta property="og:title" content="MBMC Solid Waste Grievance Portal (Prototype)">
+  <meta property="og:description" content="File and track solid-waste complaints across Mira-Bhayandar wards.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -127,8 +133,8 @@
   <!-- 3. Prototype Disclaimer Banner -->
   <section class="gov-disclaimer-strip" role="region" aria-label="Demonstration Notice">
     <div class="container">
-      <span class="disclaimer-badge">MBMC Demo Portal</span>
-      <strong>DEMO PROTOTYPE NOTICE:</strong> This is an interactive municipal solid waste grievance and tracking portal for Mira Bhayandar Municipal Corporation. All submissions persist locally in your browser.
+      <span class="disclaimer-badge">Prototype</span>
+      <strong>PROTOTYPE - NOT AN OFFICIAL MBMC WEBSITE.</strong> This is an interactive municipal solid waste grievance and tracking portal for Mira Bhayandar Municipal Corporation. All submissions persist locally in your browser.
     </div>
   </section>
 
@@ -160,6 +166,9 @@
           <button class="nav-tab-link" data-view="officer" role="tab" aria-selected="false">
             🛡️ Officer Console <span class="officer-badge-nav">Staff</span>
           </button>
+        </li>
+      <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="info" role="tab" aria-selected="false">ℹ️ Citizen Info</button>
         </li>
       </ul>
     </div>
@@ -399,6 +408,9 @@
                 </label>
                 <div class="input-with-button">
                   <input type="text" id="reportLocation" class="form-input" placeholder="e.g. Near Maxus Mall Flyover, 60 Feet Road, Bhayandar West" required>
+                  <div id="pickMap" class="pick-map" aria-label="Map: tap to drop a pin on the exact spot"></div>
+                  <small id="pickMapHint" class="form-hint">Tap the map to drop a pin, or use Detect GPS.</small>
+                  <input type="text" id="hpWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
                   <button type="button" class="gov-btn gov-btn-secondary" id="gpsHelperBtn" style="white-space: nowrap;">
                     📍 Detect GPS
                   </button>
@@ -689,7 +701,31 @@
       </section>
 
     </div>
-  </main>
+  
+      <section class="portal-view" id="view-info" aria-labelledby="headingInfo">
+        <div class="gov-page-header"><div class="page-title-group">
+          <h1 id="headingInfo">ℹ️ Citizen Information</h1>
+          <p>Waste segregation, collection timings and common questions. Timings shown are indicative; confirm with your ward office.</p>
+        </div></div>
+        <div class="info-grid">
+          <article class="info-card"><h3>Segregate at source</h3>
+            <ul><li><b>Green bin:</b> wet waste - kitchen scraps, vegetable peels, flowers.</li>
+            <li><b>Blue bin:</b> dry waste - paper, plastic, metal, glass.</li>
+            <li><b>Red/separate bag:</b> sanitary and bio-medical waste, wrapped and labelled.</li>
+            <li>Never mix C&amp;D debris with household waste; report dumping on this portal.</li></ul></article>
+          <article class="info-card"><h3>Ghanta Gadi (indicative)</h3>
+            <table class="info-table"><tr><th>Ward</th><th>Morning slot</th></tr>
+            <tr><td>Wards 1-2</td><td>7:00 - 9:00</td></tr><tr><td>Wards 3-4</td><td>7:30 - 9:30</td></tr>
+            <tr><td>Wards 5-6</td><td>8:00 - 10:00</td></tr><tr><td>Wards 7-8</td><td>8:30 - 10:30</td></tr></table>
+            <p class="form-hint">Placeholder timings - replace with the official MBMC schedule.</p></article>
+          <article class="info-card"><h3>FAQs</h3>
+            <details><summary>How fast will my complaint be handled?</summary><p>Critical 6h, High 12h, Medium 24h, Low 48h. Overdue items are flagged in the ledger.</p></details>
+            <details><summary>Do I need to share my phone number?</summary><p>No. You can file anonymously, but you will not receive updates.</p></details>
+            <details><summary>How do I track a complaint?</summary><p>Open the Public Ledger and search by reference ID.</p></details>
+            <details><summary>Is this the official MBMC site?</summary><p>No. This is a prototype for demonstration.</p></details></article>
+        </div>
+      </section>
+</main>
 
   <!-- ==========================================
        MODAL 1: GRIEVANCE ACKNOWLEDGEMENT RECEIPT
@@ -775,6 +811,7 @@
        6. OFFICIAL GOVERNMENT PORTAL FOOTER
        ========================================== -->
   <footer class="gov-footer" role="contentinfo">
+    <div style="background:#7c2d12;color:#fff;text-align:center;padding:6px;font-size:.8rem">Prototype - not an official MBMC website. Emblems and helpline numbers must be verified before any official use.</div>
     <div class="container">
       <div class="footer-top-grid">
         <div class="footer-col">
@@ -840,6 +877,11 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
   <script src="app.js"></script>
+  <script src="backend.js"></script>
+  <script src="extras.js"></script>
 </body>
 </html>
