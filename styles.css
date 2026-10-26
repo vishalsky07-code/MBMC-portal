@@ -1600,3 +1600,5 @@ body {
 .info-card summary{cursor:pointer;font-weight:600}
 @media (max-width:640px){.pick-map{height:240px}}
 #view-info { padding: 0 24px 32px; max-width: 1200px; margin: 0 auto; }
+   #view-info { padding: 0 24px 32px; max-width: 1200px; margin: 0 auto; }
+   
