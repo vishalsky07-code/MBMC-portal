@@ -1,4 +1,4 @@
-# 🏛️ Mira Bhayandar Municipal Corporation (MBMC)
+# 🏛️ Demo- Mira Bhayandar Municipal Corporation (MBMC)
 ## Solid Waste Management & Citizen Grievance Redressal Portal
 
 A production-grade, zero-dependency static web application designed specifically for **Mira Bhayandar Municipal Corporation (मिरा भाईंदर महानगरपालिका)** under the **Swachh Bharat Abhiyan (Clean India Mission)**. It provides an authentic government-styled citizen grievance redressal system, public tracking ledger with audit logs, ward-by-ward waste density analytics, and a sanitary inspector management console.
