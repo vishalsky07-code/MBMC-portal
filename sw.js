@@ -1,4 +1,4 @@
-const C="mbmc-v2",F=["./","index.html","styles.css","app.js","extras.js","backend.js","config.js","icon.svg"];
+const C="mbmc-v3",F=["./","index.html","styles.css","app.js","extras.js","backend.js","config.js","icon.svg","privacy.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F))));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x))))));
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;

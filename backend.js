@@ -79,11 +79,28 @@
     app.updateOfficerUI();
   }
 
+  // Proper login dialog (password is masked)
+  function askLogin() {
+    return new Promise(res => {
+      const ov = document.createElement("div");
+      ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px";
+      ov.innerHTML = '<form style="background:#fff;color:#0f172a;border-radius:8px;padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;font-family:Inter,sans-serif">' +
+        '<h3 style="margin:0">Officer Sign-in</h3>' +
+        '<input id="lgEmail" type="email" placeholder="Email" autocomplete="username" required style="padding:10px;border:1px solid #94a3b8;border-radius:6px">' +
+        '<input id="lgPass" type="password" placeholder="Password" autocomplete="current-password" required style="padding:10px;border:1px solid #94a3b8;border-radius:6px">' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="lgCancel" style="padding:8px 14px">Cancel</button><button type="submit" style="padding:8px 14px;background:#07192f;color:#fff;border:0;border-radius:6px">Sign in</button></div></form>';
+      document.body.appendChild(ov);
+      const f = ov.querySelector("form"), done = v => { ov.remove(); res(v); };
+      ov.querySelector("#lgEmail").focus();
+      ov.querySelector("#lgCancel").onclick = () => done(null);
+      f.onsubmit = e => { e.preventDefault(); done({ email: ov.querySelector("#lgEmail").value, password: ov.querySelector("#lgPass").value }); };
+    });
+  }
+
   B.toggleOfficer = async function () {
     if (B.user) { await sb.auth.signOut(); await loadSession(); await refresh(); app.showToast("Signed out.", "info"); return; }
-    const email = prompt("Officer email:"); if (!email) return;
-    const password = prompt("Password:"); if (!password) return;
-    const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+    const creds = await askLogin(); if (!creds) return;
+    const { error } = await sb.auth.signInWithPassword({ email: creds.email.trim(), password: creds.password });
     if (error) { app.showToast("Login failed: " + error.message, "info"); return; }
     await loadSession();
     if (!B.isStaff) { await sb.auth.signOut(); await loadSession(); app.showToast("This account has no officer role.", "info"); return; }
@@ -93,6 +110,7 @@
   document.addEventListener("DOMContentLoaded", async () => {
     app.generateReferenceID = () => "MBMC-" + new Date().getFullYear() + "-" + String(crypto.getRandomValues(new Uint32Array(1))[0] % 10000000).padStart(7, "0");
     localStorage.removeItem(OFFICER_MODE_KEY);
+    const rb = document.getElementById("resetDataBtn"); if (rb) rb.style.display = "none";
     await loadSession(); await refresh();
     sb.channel("grievances-live").on("postgres_changes", { event: "*", schema: "public", table: "grievances" }, refresh).subscribe();
   });

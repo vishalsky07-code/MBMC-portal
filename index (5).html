@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en" data-font-size="md">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mira Bhayandar Municipal Corporation - Solid Waste Management & Grievance Portal</title>
+  <meta name="description" content="Independent prototype of a solid-waste grievance portal for Mira-Bhayandar. Not an official MBMC website.">
+  <meta name="theme-color" content="#07192f">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta property="og:title" content="MBMC Solid Waste Grievance Portal (Prototype)">
+  <meta property="og:description" content="File and track solid-waste complaints across Mira-Bhayandar wards.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Merriweather:ital,wght@0,400;0,700;1,300&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Accessibility Skip Link -->
+  <a href="#mainContent" class="skip-link">Skip to main government portal content</a>
+
+  <!-- 1. Top Government Hierarchy & Accessibility Strip -->
+  <aside class="gov-top-bar" aria-label="Official Government Header Ribbon">
+    <div class="container">
+      <div class="gov-hierarchy-strip">
+        <span class="gov-flag-icon" title="National Civic Identity">
+          <span class="flag-stripe-1"></span>
+          <span class="flag-stripe-2"></span>
+          <span class="flag-stripe-3"></span>
+        </span>
+        <span>GOVERNMENT OF MAHARASHTRA | MIRA BHAYANDAR MUNICIPAL CORPORATION (MBMC) | महाराष्ट्र शासन</span>
+      </div>
+
+      <div class="gov-accessibility-controls">
+        <div class="acc-btn-group" role="group" aria-label="Font scale adjustment">
+          <button class="acc-btn" id="fontScaleSm" title="Decrease font size">A-</button>
+          <button class="acc-btn active" id="fontScaleMd" title="Standard font size">A</button>
+          <button class="acc-btn" id="fontScaleLg" title="Increase font size">A+</button>
+        </div>
+
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle high-contrast accessibility view">
+          ⚙ High Contrast: OFF
+        </button>
+
+        <span style="font-size: 0.75rem; color: #94a3b8; border-left: 1px solid #475569; padding-left: 8px;">
+          English / मराठी
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 2. Official Portal Header with MBMC Crest & Clean India (Swachh Bharat) Logo -->
+  <header class="gov-header" role="banner">
+    <div class="container">
+      <div class="header-content">
+        <!-- Left: MBMC Emblem & Titles -->
+        <div class="header-branding">
+          <div class="emblem-wrapper" aria-hidden="true" title="Official Seal of Mira Bhayandar Municipal Corporation">
+            <!-- Official MBMC Municipal Crest Emblem SVG -->
+            <svg class="emblem-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="47" stroke="#0e2a47" stroke-width="3" fill="#ffffff"/>
+              <circle cx="50" cy="50" r="42" stroke="#b45309" stroke-width="1.5" stroke-dasharray="3 2"/>
+              <!-- Circular Seal Text Arc -->
+              <path id="crestArcTop" d="M 18,50 A 32,32 0 1,1 82,50" fill="none"/>
+              <path id="crestArcBottom" d="M 82,50 A 32,32 0 0,1 18,50" fill="none"/>
+              <!-- Central Urban & Coastal Crest (Mira-Bhayandar Creek & Rising Sun) -->
+              <path d="M30 52 C38 46, 62 46, 70 52 L70 68 C60 74, 40 74, 30 68 Z" fill="#0e2a47"/>
+              <!-- Rising Sun -->
+              <circle cx="50" cy="46" r="10" fill="#f59e0b"/>
+              <path d="M50 32 L50 35 M39 37 L41 40 M61 37 L59 40 M34 46 L37 46 M66 46 L63 46" stroke="#b45309" stroke-width="2"/>
+              <!-- Blue Marine Waves -->
+              <path d="M32 58 Q 41 54, 50 58 T 68 58 M32 64 Q 41 60, 50 64 T 68 64" stroke="#60a5fa" stroke-width="2" fill="none"/>
+              <!-- Floral Garland Wreath -->
+              <path d="M22 50 C22 66, 36 78, 50 82 C64 78, 78 66, 78 50" stroke="#166534" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <!-- Top Kalash / Crown -->
+              <path d="M42 22 L50 14 L58 22 L50 26 Z" fill="#b45309"/>
+              <text x="50" y="92" font-family="'Inter', sans-serif" font-size="5.5" font-weight="bold" fill="#0e2a47" text-anchor="middle" letter-spacing="0.5">MBMC • ESTD 2002</text>
+            </svg>
+          </div>
+
+          <div class="header-titles">
+            <span class="gov-sub-title">DEPARTMENT OF SOLID WASTE MANAGEMENT & SANITATION • घनकचरा व्यवस्थापन विभाग</span>
+            <h1 class="gov-main-title">Mira Bhayandar Municipal Corporation</h1>
+            <span class="gov-department-title">मिरा भाईंदर महानगरपालिका • Swachh Bharat Grievance & Waste Tracking Portal</span>
+          </div>
+        </div>
+
+        <!-- Right: Clean India Logo & Helpline Badge -->
+        <div class="header-meta-group">
+          <!-- Official Clean India / Swachh Bharat Mission Logo -->
+          <div class="clean-india-logo-box" title="Clean India Mission / स्वच्छ भारत अभियान">
+            <svg class="clean-india-svg" viewBox="0 0 140 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Gandhi's Iconic Round Spectacles -->
+              <!-- Left Circle (Lens) with 'स्वच्छ' -->
+              <circle cx="38" cy="22" r="16" stroke="#1e3a8a" stroke-width="3" fill="#ffffff"/>
+              <text x="38" y="27" font-family="'Inter', 'Arial', sans-serif" font-size="11" font-weight="900" fill="#1e3a8a" text-anchor="middle">स्वच्छ</text>
+              
+              <!-- Right Circle (Lens) with 'भारत' -->
+              <circle cx="86" cy="22" r="16" stroke="#1e3a8a" stroke-width="3" fill="#ffffff"/>
+              <text x="86" y="27" font-family="'Inter', 'Arial', sans-serif" font-size="11" font-weight="900" fill="#1e3a8a" text-anchor="middle">भारत</text>
+              
+              <!-- Spectacle Bridge in Saffron / White / Green -->
+              <path d="M54 18 Q 62 12, 70 18" stroke="#ff9933" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+              <path d="M54 21 Q 62 16, 70 21" stroke="#138808" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              
+              <!-- Left & Right Temples / Frame Arms -->
+              <path d="M22 20 L4 14" stroke="#ff9933" stroke-width="3" stroke-linecap="round"/>
+              <path d="M102 20 L120 14" stroke="#138808" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="4" cy="14" r="2.5" fill="#1e3a8a"/>
+              <circle cx="120" cy="14" r="2.5" fill="#1e3a8a"/>
+            </svg>
+            <div class="clean-india-tagline">एक कदम स्वच्छता की ओर</div>
+          </div>
+
+          <div class="header-meta">
+            <div class="emergency-helpline-badge">
+              <span>📞 MBMC Helpline (Toll-Free):</span>
+              <span class="helpline-number">See official MBMC website</span>
+            </div>
+            <span class="header-tagline">“स्वच्छ, सुंदर आणि प्लास्टिकमुक्त मिरा-भाईंदर”</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. Prototype Disclaimer Banner -->
+  <section class="gov-disclaimer-strip" role="region" aria-label="Demonstration Notice">
+    <div class="container">
+      <span class="disclaimer-badge">Prototype</span>
+      <strong>PROTOTYPE -    Complaints are stored in a shared database; personal details are visible only to authorised MBMC staff.
+    </div>
+  </section>
+
+  <!-- 4. Navigation Menu -->
+  <nav class="gov-navbar" aria-label="Portal Primary Navigation">
+    <div class="container">
+      <ul class="nav-tabs-list" role="tablist">
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link active" data-view="overview" role="tab" aria-selected="true">
+            🏛️ Portal Overview
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="report" role="tab" aria-selected="false">
+            📝 Report an Issue
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="ledger" role="tab" aria-selected="false">
+            📋 Public Tracking Ledger
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="analytics" role="tab" aria-selected="false">
+            🗺️ Ward-by-Ward Analytics
+          </button>
+        </li>
+        <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="officer" role="tab" aria-selected="false">
+            🛡️ Officer Console <span class="officer-badge-nav">Staff</span>
+          </button>
+        </li>
+      <li class="nav-tab-item" role="presentation">
+          <button class="nav-tab-link" data-view="info" role="tab" aria-selected="false">ℹ️ Citizen Info</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumb-bar" aria-label="Breadcrumb trail">
+    <div class="container">
+      <ol class="breadcrumb-list">
+        <li class="breadcrumb-item"><a href="javascript:void(0)" onclick="app.switchView('overview')">Home</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item"><a href="javascript:void(0)" onclick="app.switchView('overview')">MBMC Solid Waste Management</a></li>
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" id="breadcrumbCurrent">Overview & City Dashboard</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 5. Main Application Content Area -->
+  <main class="main-content" id="mainContent">
+    <div class="container">
+
+      <!-- ==========================================
+           VIEW 1: PORTAL OVERVIEW & CITY STATS
+           ========================================== -->
+      <section class="portal-view active-view" id="view-overview" aria-labelledby="headingOverview">
+        <div class="gov-page-header">
+          <div class="page-title-group">
+            <h1 id="headingOverview">🏛️ MBMC Sanitation Command & Grievance Overview</h1>
+            <p>Real-time civic solid waste metrics for Mira Road & Bhayandar, automated SLA tracking, and citizen redressal portal.</p>
+          </div>
+          <div class="page-actions">
+            <button class="gov-btn gov-btn-gold" data-navigate-view="report">
+              📝 File Citizen Grievance
+            </button>
+            <button class="gov-btn gov-btn-secondary" data-navigate-view="ledger">
+              🔍 Track by Reference ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Municipal KPIs Grid -->
+        <div class="stats-summary-grid" aria-label="Municipal Key Performance Indicators">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Logged Issues</div>
+            <div class="kpi-value" id="kpiTotal">12</div>
+            <div class="kpi-subtext">Across 8 MBMC Wards</div>
+          </div>
+          <div class="kpi-card kpi-pending">
+            <div class="kpi-label">Pending Triage</div>
+            <div class="kpi-value" id="kpiPending" style="color: var(--urgency-critical);">3</div>
+            <div class="kpi-subtext">Under Ward Inspection Desk</div>
+          </div>
+          <div class="kpi-card kpi-progress">
+            <div class="kpi-label">In Progress / Dispatched</div>
+            <div class="kpi-value" id="kpiProgress" style="color: var(--gov-blue-accent);">4</div>
+            <div class="kpi-subtext">MBMC Compactors on Site</div>
+          </div>
+          <div class="kpi-card kpi-resolved">
+            <div class="kpi-label">Successfully Resolved</div>
+            <div class="kpi-value" id="kpiResolved" style="color: #16a34a;">5</div>
+            <div class="kpi-subtext">Cleared with Photo Proof</div>
+          </div>
+          <div class="kpi-card kpi-rate">
+            <div class="kpi-label">MBMC Clearance Rate</div>
+            <div class="kpi-value" id="kpiRate" style="color: var(--gov-gold);">41.7%</div>
+            <div class="kpi-subtext">Demo target: 90%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg. Turnaround Time</div>
+            <div class="kpi-value" id="kpiAvgTime">14.8 Hrs</div>
+            <div class="kpi-subtext">Citizen Charter Standard: 24h</div>
+          </div>
+        </div>
+
+        <!-- Quick Action Cards -->
+        <div class="quick-actions-grid">
+          <div class="action-card card-accent-gold">
+            <div>
+              <div class="action-card-icon">📢</div>
+              <h3>Report Sanitation Grievance</h3>
+              <p>Submit geotagged reports with photo evidence for overflowing dumper bins, missed door-to-door pickups, or debris in Mira-Bhayandar.</p>
+            </div>
+            <button class="gov-btn gov-btn-gold" data-navigate-view="report">
+              Open Grievance Form &rarr;
+            </button>
+          </div>
+
+          <div class="action-card">
+            <div>
+              <div class="action-card-icon">📋</div>
+              <h3>Public Grievance Ledger</h3>
+              <p>Transparent public ledger of all MBMC waste tickets. Filter by ward, urgency, or track your grievance reference number in real time.</p>
+            </div>
+            <button class="gov-btn gov-btn-primary" data-navigate-view="ledger">
+              Search Public Ledger &rarr;
+            </button>
+          </div>
+
+          <div class="action-card">
+            <div>
+              <div class="action-card-icon">📊</div>
+              <h3>Ward Density Analytics</h3>
+              <p>Inspect waste generation, resolution performance, and active backlogs across Bhayandar West, Bhayandar East, and Mira Road zones.</p>
+            </div>
+            <button class="gov-btn gov-btn-secondary" data-navigate-view="analytics">
+              View Ward Grid &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Citizen Charter Commitment Section -->
+        <div class="gov-card">
+          <div class="gov-card-header">
+            <h2 class="gov-card-title">📜 MBMC Citizen Charter & Service Level Agreement (SLA) Standards</h2>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">As per Maharashtra Municipal Corporations Act & SWM Rules 2016</span>
+          </div>
+          <div class="gov-card-body">
+            <div class="gov-table-wrapper">
+              <table class="gov-table">
+                <thead>
+                  <tr>
+                    <th>Grievance Classification</th>
+                    <th>Designated MBMC Response Unit</th>
+                    <th>Standard Resolution SLA</th>
+                    <th>Escalation Officer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Overflowing Municipal Bin / Depot</strong></td>
+                    <td>MBMC Hydraulic Compactor Unit</td>
+                    <td>Within 12 Hours</td>
+                    <td>Ward Sanitary Inspector</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Missed Door-to-Door Pickup</strong></td>
+                    <td>Zonal Ghanta Gadi (Tipper Vehicle)</td>
+                    <td>Within 24 Hours</td>
+                    <td>Sanitary Superintendent (MBMC)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Illegal Debris Dumping (C&D Waste)</strong></td>
+                    <td>MBMC Encroachment & Earthmover Squad</td>
+                    <td>Within 18 Hours</td>
+                    <td>Assistant Municipal Commissioner (Zone)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Hazardous / Bio-Medical Waste</strong></td>
+                    <td>Special Biohazard Incineration Unit</td>
+                    <td>Immediate (< 6 Hours)</td>
+                    <td>Chief Medical Officer of Health (MBMC)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           VIEW 2: CITIZEN REPORT AN ISSUE
+           ========================================== -->
+      <section class="portal-view" id="view-report" aria-labelledby="headingReport">
+        <div class="gov-page-header">
+          <div class="page-title-group">
+            <h1 id="headingReport">📝 Citizen Grievance Redressal Form (Report Waste)</h1>
+            <p>Lodge an official civic grievance regarding solid waste management, littering, or bin maintenance in Mira-Bhayandar.</p>
+          </div>
+        </div>
+
+        <div class="gov-alert gov-alert-info" role="alert">
+          <span style="font-size: 1.2rem;">ℹ️</span>
+          <div>
+            <strong>Demo Notice:</strong> This is an independent prototype, not an official MBMC service. Your report is stored in a demo database and is <u>not</u> forwarded to MBMC. Every report gets a demo Reference ID (e.g. <code>MBMC-2026-0000231</code>) you can use to track it in the public ledger.
+          </div>
+        </div>
+
+        <form id="citizenReportForm" class="gov-card" style="padding: 24px;">
+          
+          <!-- Section 1: Grievant Contact Information -->
+          <div class="form-section-block">
+            <div class="form-section-legend">
+              <span>👤 1. Grievant Identification Details</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-checkbox-label">
+                <input type="checkbox" id="isAnonymous">
+                <strong>File Anonymously</strong> (Do not display citizen personal identity on the public tracking ledger)
+              </label>
+            </div>
+
+            <div class="form-grid-2col">
+              <div class="form-group" id="citizenNameGroup">
+                <label for="citizenName" class="form-label">Full Name of Citizen / Grievant</label>
+                <input type="text" id="citizenName" class="form-input" placeholder="e.g. Anand Kulkarni" autocomplete="name">
+                <span class="form-helper-text">Official name for municipal communication records</span>
+              </div>
+
+              <div class="form-group" id="citizenPhoneGroup">
+                <label for="citizenPhone" class="form-label">Mobile Contact Number (optional)</label>
+                <input type="tel" id="citizenPhone" class="form-input" placeholder="e.g. +91 98201 23456" autocomplete="tel">
+                <span class="form-helper-text">Visible only to authorised staff. No SMS is sent in this prototype.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Ward & Location -->
+          <div class="form-section-block">
+            <div class="form-section-legend">
+              <span>📍 2. MBMC Ward Location & Landmark Details</span>
+            </div>
+
+            <div class="form-grid-2col">
+              <div class="form-group">
+                <label for="reportWard" class="form-label">
+                  Municipal Ward / Administrative Zone <span class="form-label-required">*</span>
+                </label>
+                <select id="reportWard" class="form-select" required>
+                  <option value="" disabled selected>-- Select MBMC Ward --</option>
+                  <option value="Ward 1 - Bhayandar West (Uttan / Rai / Morva)">Ward 1 - Bhayandar West (Uttan Coastal / Rai / Morva)</option>
+                  <option value="Ward 2 - Bhayandar West (Maxus Mall / 60 Feet Rd)">Ward 2 - Bhayandar West (Maxus Mall / 60 Feet Rd / Mandvi)</option>
+                  <option value="Ward 3 - Bhayandar East (Station Rd / Jesal Park)">Ward 3 - Bhayandar East (Station Rd / Jesal Park / Navghar)</option>
+                  <option value="Ward 4 - Bhayandar East (Indralok / Cabin Rd)">Ward 4 - Bhayandar East (Indralok / Cabin Rd / Goddev)</option>
+                  <option value="Ward 5 - Mira Road East (Naya Nagar / Shanti Nagar)">Ward 5 - Mira Road East (Naya Nagar / Shanti Nagar / Lodha)</option>
+                  <option value="Ward 6 - Mira Road East (Kanakia / Beverly Park)">Ward 6 - Mira Road East (Kanakia Park / Beverly Park / Jangid)</option>
+                  <option value="Ward 7 - Mira Road East (Kashimira / WE Highway)">Ward 7 - Mira Road East (Kashimira / Western Express Highway / Hatkesh)</option>
+                  <option value="Ward 8 - Mira Road (Silver Park / Poonam Sagar)">Ward 8 - Mira Road (Silver Park / Poonam Sagar / Pleasant Park)</option>
+                </select>
+                <span class="form-helper-text">Assigns grievance to designated MBMC Zonal Sanitary Inspector</span>
+              </div>
+
+              <div class="form-group">
+                <label for="reportLocation" class="form-label">
+                  Exact Street Address / Prominent Landmark <span class="form-label-required">*</span>
+                </label>
+                <div class="input-with-button">
+                  <input type="text" id="reportLocation" class="form-input" placeholder="e.g. Near Maxus Mall Flyover, 60 Feet Road, Bhayandar West" required>
+                  <div id="pickMap" class="pick-map" aria-label="Map: tap to drop a pin on the exact spot"></div>
+                  <small id="pickMapHint" class="form-hint">Tap the map to drop a pin, or use Detect GPS.</small>
+                  <input type="text" id="hpWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+                  <button type="button" class="gov-btn gov-btn-secondary" id="gpsHelperBtn" style="white-space: nowrap;">
+                    📍 Detect GPS
+                  </button>
+                </div>
+                <span class="form-helper-text">Specific landmark aids MBMC compactor trucks in locating the garbage site</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Issue Classification & Urgency -->
+          <div class="form-section-block">
+            <div class="form-section-legend">
+              <span>🗑️ 3. Waste Category & Urgency Classification</span>
+            </div>
+
+            <div class="form-grid-2col">
+              <div class="form-group">
+                <label for="reportCategory" class="form-label">
+                  Primary Grievance Category <span class="form-label-required">*</span>
+                </label>
+                <select id="reportCategory" class="form-select" required>
+                  <option value="" disabled selected>-- Select Grievance Type --</option>
+                  <option value="Overflowing Municipal Bin">🗑️ Overflowing Municipal Bin / Community Depot</option>
+                  <option value="Missed Garbage Pickup">🚛 Missed Door-to-Door Ghanta Gadi Pickup</option>
+                  <option value="Illegal Dumping / Debris">⚠️ Illegal Debris / Construction Material Dumping</option>
+                  <option value="Damaged / Missing Bin">🔧 Damaged or Stolen Public Litter Bin</option>
+                  <option value="Hazardous / Medical Waste">☣️ Hazardous / Bio-Medical Clinic Waste</option>
+                  <option value="Blocked Storm Drain Silt">🌊 Blocked Gutter / Roadside Nallah Silt Overflow</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  Civic Priority / Urgency Level <span class="form-label-required">*</span>
+                </label>
+                <div class="urgency-radio-grid">
+                  <label class="urgency-radio-label">
+                    <input type="radio" name="reportUrgency" value="Low">
+                    <span><strong>Low</strong> (48h SLA)</span>
+                  </label>
+                  <label class="urgency-radio-label selected-medium">
+                    <input type="radio" name="reportUrgency" value="Medium" checked>
+                    <span><strong>Medium</strong> (24h SLA)</span>
+                  </label>
+                  <label class="urgency-radio-label">
+                    <input type="radio" name="reportUrgency" value="High">
+                    <span><strong>High</strong> (12h SLA)</span>
+                  </label>
+                  <label class="urgency-radio-label">
+                    <input type="radio" name="reportUrgency" value="Critical">
+                    <span style="color: var(--urgency-critical);"><strong>Critical</strong> (6h SLA)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reportDescription" class="form-label">
+                Detailed Incident Description & Remarks <span class="form-label-required">*</span>
+              </label>
+              <textarea id="reportDescription" class="form-textarea" placeholder="Please describe the issue in detail: how long the waste has accumulated, approximate volume, whether stray animals or odor are present..." required></textarea>
+            </div>
+          </div>
+
+          <!-- Section 4: Photographic Evidence -->
+          <div class="form-section-block">
+            <div class="form-section-legend">
+              <span>📷 4. Photographic Evidence (Optional / Recommended)</span>
+            </div>
+
+            <div class="upload-dropzone" id="uploadDropzone" tabindex="0" role="button" aria-label="Upload site photo">
+              <input type="file" id="reportPhoto" accept="image/*" style="display: none;">
+              <div class="upload-dropzone-inner">
+                <div style="font-size: 2rem;">📸</div>
+                <div style="font-weight: 600; color: var(--gov-navy);">Click to Upload Photo or Drag & Drop File Here</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Supports JPG, PNG, WebP (Max 2MB). Do not include faces or vehicle number plates.</div>
+              </div>
+            </div>
+
+            <div class="upload-preview-container" id="uploadPreviewContainer">
+              <img src="" alt="Evidence Preview" class="upload-preview-img" id="uploadPreviewImg">
+              <div class="upload-preview-meta" id="uploadPreviewMeta"></div>
+              <button type="button" class="gov-btn gov-btn-secondary gov-btn-sm" id="removePhotoBtn">Remove Photo</button>
+            </div>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+            <div style="font-size: 0.78rem; color: var(--text-light);">
+              <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="consentChk" required style="margin-top:3px"><span>I confirm this information is accurate and I consent to my name/phone (if given) being stored as per the <a href="privacy" target="_blank" rel="noopener">Privacy Policy</a>. I will not write personal details in the description, which is public.</span></label>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button type="reset" class="gov-btn gov-btn-secondary">Clear Form</button>
+              <button type="submit" class="gov-btn gov-btn-gold">
+                📨 Submit Grievance (Demo)
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- ==========================================
+           VIEW 3: PUBLIC TRACKING LEDGER
+           ========================================== -->
+      <section class="portal-view" id="view-ledger" aria-labelledby="headingLedger">
+        <div class="gov-page-header">
+          <div class="page-title-group">
+            <h1 id="headingLedger">📋 MBMC Public Waste Grievance Tracking Ledger</h1>
+            <p>Transparent public municipal ledger. Search and verify live field status across Mira Road and Bhayandar.</p>
+          </div>
+          <div class="page-actions">
+            <button class="gov-btn gov-btn-secondary" id="exportCsvBtn" title="Download official ledger CSV">
+              📥 Export Ledger (CSV)
+            </button>
+            <button class="gov-btn gov-btn-secondary" id="printLedgerBtn" title="Print official ledger document">
+              🖨️ Print Ledger
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="ledger-filter-card">
+          <div class="filter-grid">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="ledgerSearch" class="form-label">Search Reference ID / Location / Keyword</label>
+              <input type="text" id="ledgerSearch" class="form-input" placeholder="e.g. MBMC-2026-00101, Kanakia, Maxus, Uttan...">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filterWard" class="form-label">Filter by MBMC Ward</label>
+              <select id="filterWard" class="form-select">
+                <option value="All">All MBMC Wards</option>
+                <option value="Ward 1">Ward 1 (Uttan / Rai / Morva)</option>
+                <option value="Ward 2">Ward 2 (Maxus Mall / 60 Feet Rd)</option>
+                <option value="Ward 3">Ward 3 (Station Rd / Jesal Park)</option>
+                <option value="Ward 4">Ward 4 (Indralok / Cabin Rd)</option>
+                <option value="Ward 5">Ward 5 (Naya Nagar / Shanti Nagar)</option>
+                <option value="Ward 6">Ward 6 (Kanakia / Beverly Park)</option>
+                <option value="Ward 7">Ward 7 (Kashimira / WE Highway)</option>
+                <option value="Ward 8">Ward 8 (Silver Park / Poonam Sagar)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filterStatus" class="form-label">Filter by Status</label>
+              <select id="filterStatus" class="form-select">
+                <option value="All">All Statuses</option>
+                <option value="Pending">Pending Review</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="filterUrgency" class="form-label">Filter Priority</label>
+              <select id="filterUrgency" class="form-select">
+                <option value="All">All Priorities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="gov-btn gov-btn-secondary" id="filterResetBtn" title="Clear search filters">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ledger Table -->
+        <div class="gov-card">
+          <div class="gov-card-header">
+            <h2 class="gov-card-title">
+              <span>🏛️ Registered MBMC Waste Grievances</span>
+            </h2>
+            <span class="status-badge status-in-progress" id="ledgerCountBadge">12 Records</span>
+          </div>
+
+          <div class="ledger-table-wrapper">
+            <table class="gov-table" aria-label="Municipal Waste Reports Table">
+              <thead>
+                <tr>
+                  <th>Reference ID</th>
+                  <th>Ward & Street Location</th>
+                  <th>Waste Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Date Logged</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody">
+                <!-- Dynamically Rendered by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           VIEW 4: WARD-BY-WARD ANALYTICS
+           ========================================== -->
+      <section class="portal-view" id="view-analytics" aria-labelledby="headingAnalytics">
+        <div class="gov-page-header">
+          <div class="page-title-group">
+            <h1 id="headingAnalytics">🗺️ MBMC Ward-by-Ward Waste Density & SLA Grid</h1>
+            <p>Zonal overview of grievance volume, active waste backlogs, and clearance resolution rates across Mira-Bhayandar.</p>
+          </div>
+        </div>
+
+
+        <!-- Dynamic Ward Cards Grid -->
+        <div class="ward-overview-grid" id="wardGridContainer">
+          <!-- Dynamically generated by app.js -->
+        </div>
+      </section>
+
+      <!-- ==========================================
+           VIEW 5: SANITARY INSPECTOR CONSOLE
+           ========================================== -->
+      <section class="portal-view" id="view-officer" aria-labelledby="headingOfficer">
+        <div class="gov-page-header">
+          <div class="page-title-group">
+            <h1 id="headingOfficer">🛡️ MBMC Sanitary Inspector & Staff Management Console</h1>
+            <p>Internal operational console for dispatching MBMC compactor trucks, assigning teams, and updating clearance status.</p>
+          </div>
+          <div class="page-actions">
+            <button class="gov-btn gov-btn-gold" id="officerToggleBtn">
+              🛡️ Sanitary Officer Access
+            </button>
+          </div>
+        </div>
+
+        <!-- Officer Session Banner -->
+        <div class="officer-auth-panel">
+          <div class="officer-badge-info">
+            <div class="officer-avatar-box">👮</div>
+            <div class="officer-details">
+              <h3>Sanitary Inspector Console</h3>
+              <p>Authorised staff only. Sign in to update grievance status.</p>
+            </div>
+          </div>
+          <div>
+            <span class="status-badge" id="officerStatusBadge" style="background: var(--gov-gold); color: #ffffff; font-size: 0.8rem; padding: 6px 12px;">
+              OFFICER CONSOLE: ACTIVE
+            </span>
+          </div>
+        </div>
+
+        <!-- Staff Action Table -->
+        <div class="gov-card">
+          <div class="gov-card-header">
+            <h2 class="gov-card-title">⚡ Assigned Grievances Awaiting Field Clearance</h2>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Click 'Manage Status' to update workflow</span>
+          </div>
+
+          <div class="ledger-table-wrapper">
+            <table class="gov-table">
+              <thead>
+                <tr>
+                  <th>Reference ID</th>
+                  <th>Ward & Street</th>
+                  <th>Category / Priority</th>
+                  <th>Current Status</th>
+                  <th>Assigned Vehicle / Crew</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="officerLedgerTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  
+      <section class="portal-view" id="view-info" aria-labelledby="headingInfo">
+        <div class="gov-page-header"><div class="page-title-group">
+          <h1 id="headingInfo">ℹ️ Citizen Information</h1>
+          <p>Waste segregation, collection timings and common questions. Timings shown are indicative; confirm with your ward office.</p>
+        </div></div>
+        <div class="info-grid">
+          <article class="info-card"><h3>Segregate at source</h3>
+            <ul><li><b>Green bin:</b> wet waste - kitchen scraps, vegetable peels, flowers.</li>
+            <li><b>Blue bin:</b> dry waste - paper, plastic, metal, glass.</li>
+            <li><b>Red/separate bag:</b> sanitary and bio-medical waste, wrapped and labelled.</li>
+            <li>Never mix C&amp;D debris with household waste; report dumping on this portal.</li></ul></article>
+          <article class="info-card"><h3>Ghanta Gadi (indicative)</h3>
+            <table class="info-table"><tr><th>Ward</th><th>Morning slot</th></tr>
+            <tr><td>Wards 1-2</td><td>7:00 - 9:00</td></tr><tr><td>Wards 3-4</td><td>7:30 - 9:30</td></tr>
+            <tr><td>Wards 5-6</td><td>8:00 - 10:00</td></tr><tr><td>Wards 7-8</td><td>8:30 - 10:30</td></tr></table>
+            <p class="form-hint">Placeholder timings - replace with the official MBMC schedule.</p></article>
+          <article class="info-card"><h3>FAQs</h3>
+            <details><summary>How fast will my complaint be handled?</summary><p>Critical 6h, High 12h, Medium 24h, Low 48h. Overdue items are flagged in the ledger.</p></details>
+            <details><summary>Do I need to share my phone number?</summary><p>No. You can file anonymously, but you will not receive updates.</p></details>
+            <details><summary>How do I track a complaint?</summary><p>Open the Public Ledger and search by reference ID.</p></details>
+            <details><summary>Is this the official MBMC site?</summary><p>No. This is a prototype for demonstration.</p></details></article>
+        </div>
+      </section>
+</main>
+
+  <!-- ==========================================
+       MODAL 1: GRIEVANCE ACKNOWLEDGEMENT RECEIPT
+       ========================================== -->
+  <div class="gov-modal-backdrop" id="receiptModal" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+    <div class="gov-modal-container">
+      <div class="gov-modal-header">
+        <h2 id="receiptModalTitle">🏛️ Grievance Acknowledgement (Prototype)</h2>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+      <div class="gov-modal-body" id="receiptModalBody">
+        <!-- Injected via app.js -->
+      </div>
+      <div class="gov-modal-footer">
+        <button class="gov-btn gov-btn-secondary" id="copyRefIdBtn">📋 Copy Reference ID</button>
+        <button class="gov-btn gov-btn-secondary" onclick="window.print()">🖨️ Print Receipt</button>
+        <button class="gov-btn gov-btn-gold" id="trackInLedgerBtn">🔍 Track Status in Ledger</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: TICKET DETAILS & AUDIT TRAIL
+       ========================================== -->
+  <div class="gov-modal-backdrop" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+    <div class="gov-modal-container">
+      <div class="gov-modal-header">
+        <h2 id="detailModalTitle">📋 Grievance Dossier & Audit Timeline</h2>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+      <div class="gov-modal-body" id="detailModalBody">
+        <!-- Injected via app.js -->
+      </div>
+      <div class="gov-modal-footer">
+        <button class="gov-btn gov-btn-secondary" data-close-modal>Close Dossier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: OFFICER STATUS UPDATE MODAL
+       ========================================== -->
+  <div class="gov-modal-backdrop" id="officerActionModal" role="dialog" aria-modal="true" aria-labelledby="officerModalTitle">
+    <div class="gov-modal-container">
+      <div class="gov-modal-header">
+        <h2 id="officerModalTitle">⚙️ Update Grievance Status & Crew Assignment</h2>
+        <button class="modal-close-btn" data-close-modal aria-label="Close modal">&times;</button>
+      </div>
+      <form id="officerStatusUpdateForm">
+        <div class="gov-modal-body">
+          <div style="margin-bottom: 14px; font-size: 0.9rem;">
+            Updating Grievance Record: <strong id="officerModalRefId" style="font-family: var(--font-mono); color: var(--gov-navy);">MBMC-2026-XXXX</strong>
+          </div>
+
+          <div class="form-group">
+            <label for="officerStatusSelect" class="form-label">Workflow Status <span class="form-label-required">*</span></label>
+            <select id="officerStatusSelect" class="form-select" required>
+              <option value="Pending">Pending (Under Triage)</option>
+              <option value="In Progress">In Progress (Crew Dispatched)</option>
+              <option value="Resolved">Resolved (Cleared & Verified)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="officerCrewInput" class="form-label">Assigned Vehicle / Crew Unit</label>
+            <input type="text" id="officerCrewInput" class="form-input" placeholder="e.g. MBMC Compactor Truck #MH-04-MB-4412" required>
+          </div>
+
+          <div class="form-group">
+            <label for="officerNotesInput" class="form-label">Sanitary Inspector Inspection & Resolution Remarks</label>
+            <textarea id="officerNotesInput" class="form-textarea" placeholder="e.g. Compactor cleared 2.8 tons of mixed commercial waste. Bleaching powder sprayed."></textarea>
+          </div>
+        </div>
+        <div class="gov-modal-footer">
+          <button type="button" class="gov-btn gov-btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="gov-btn gov-btn-gold">Save & Update Public Ledger</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       6. OFFICIAL GOVERNMENT PORTAL FOOTER
+       ========================================== -->
+  <footer class="gov-footer" role="contentinfo">
+    <div style="background:#7c2d12;color:#fff;text-align:center;padding:6px;font-size:.8rem">Prototype - not an official MBMC website. Emblems and helpline numbers must be verified before any official use.</div>
+    <div class="container">
+      <div class="footer-top-grid">
+        <div class="footer-col">
+          <h4>Mira Bhayandar Municipal Corporation</h4>
+          <p style="margin-bottom: 10px; line-height: 1.6;">
+            Dedicated to urban environmental sanitation, scientific solid waste processing, and transparent grievance redressal across all municipal wards in Mira-Bhayandar.
+          </p>
+          <div style="font-size: 0.78rem; color: #cbd5e1;">
+            📍 MBMC Main Administrative Building, Indira Gandhi Bhavan, Chhatrapati Shivaji Maharaj Marg, Bhayandar West, Dist. Thane, Maharashtra - 401101<br>
+            📞 Helpline: please refer to the official MBMC website (<a href="https://mbmc.gov.in" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">mbmc.gov.in</a>)
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Citizen Services</h4>
+          <ul class="footer-links-list">
+            <li><a href="javascript:void(0)" onclick="app.switchView('report')">Lodge Waste Grievance</a></li>
+            <li><a href="javascript:void(0)" onclick="app.switchView('ledger')">Track Complaint Status</a></li>
+            <li><a href="javascript:void(0)" onclick="app.switchView('analytics')">Ward Sanitation Map</a></li>
+            <li><a href="javascript:void(0)" onclick="app.switchView('overview')">Citizen Charter & SLAs</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Statutory & Compliance</h4>
+          <ul class="footer-links-list">
+            <li><a href="https://rtionline.gov.in" target="_blank" rel="noopener">Right to Information (RTI Online)</a></li>
+            <li><a href="https://mbmc.gov.in" target="_blank" rel="noopener">Official MBMC Website</a></li>
+            <li><a href="https://swachhbharatmission.gov.in" target="_blank" rel="noopener">Swachh Bharat Mission</a></li>
+            <li><a href="privacy" target="_blank" rel="noopener">Privacy Policy &amp; Terms</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Officer & System Utilities</h4>
+          <p style="margin-bottom: 10px; font-size: 0.78rem;">
+            Authorized sanitary inspectors and municipal supervisors may access internal dispatch workflows.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="gov-btn gov-btn-outline gov-btn-sm" style="color: #ffffff; border-color: #64748b;" onclick="app.switchView('officer')">
+              🛡️ Sanitary Officer Portal
+            </button>
+            <button class="gov-btn gov-btn-secondary gov-btn-sm" id="resetDataBtn" title="Reset sample database">
+              🔄 Reset Demo Database
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <div class="container">
+        <div class="footer-bottom-flex">
+          <div>
+            Independent prototype / demo project. Not affiliated with or endorsed by Mira Bhayandar Municipal Corporation.
+          </div>
+          <div>
+            Swachh, Sundar & Harit Mira-Bhayandar.
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="backend.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

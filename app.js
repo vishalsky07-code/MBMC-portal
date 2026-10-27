@@ -640,8 +640,8 @@ class MunicipalWasteApp {
       alert("Please upload a valid image file (JPG, PNG, WebP).");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size exceeds 5 MB limit. Please select a smaller photo.");
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image size exceeds 2 MB limit. Please select a smaller photo.");
       return;
     }
 
@@ -828,7 +828,7 @@ class MunicipalWasteApp {
         </div>
 
         <div style="text-align: center; margin-bottom: 16px;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-light);">Official Grievance Reference Identifier</div>
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-light);">Demo Grievance Reference Identifier</div>
           <div style="font-family: var(--font-mono); font-size: 1.6rem; font-weight: 800; color: var(--gov-navy); letter-spacing: 1px; margin-top: 4px;">
             ${report.id}
           </div>
@@ -1005,7 +1005,7 @@ class MunicipalWasteApp {
       </div>
 
       <div>
-        <h4 style="font-family: var(--font-serif); font-size: 0.95rem; color: var(--gov-navy); margin-bottom: 8px;">Official Chronological Audit Trail</h4>
+        <h4 style="font-family: var(--font-serif); font-size: 0.95rem; color: var(--gov-navy); margin-bottom: 8px;">Chronological Audit Trail</h4>
         <div class="timeline-list">
           ${timelineItemsHtml}
         </div>
@@ -1057,7 +1057,7 @@ class MunicipalWasteApp {
       this.reports[reportIndex].timeline.push({
         time: timeString,
         title: timelineTitle,
-        desc: `Action by Officer S. K. Verma (SI-04). Remarks: "${newNotes || 'Standard MBMC clearance completed'}" | Crew: ${newCrew}`
+        desc: `Action by Sanitary Officer. Remarks: "${newNotes || 'Standard MBMC clearance completed'}" | Crew: ${newCrew}`
       });
 
       this.saveReports();
