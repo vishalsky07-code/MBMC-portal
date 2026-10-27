@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23697438.svg)](https://doi.org/10.5281/zenodo.23697438)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23697438.svg)](https://doi.org/10.5281/zenodo.23697438) 
 # MBMC Portal
 
 Web-based solid waste grievance tracking system (student research prototype).
