@@ -1,3 +1,7 @@
+# MBMC Portal
+
+Web-based solid waste grievance tracking system (student research prototype).
+Not affiliated with MBMC or any government body.
 # 🏛️ Demo- Mira Bhayandar Municipal Corporation (MBMC)
 ## Solid Waste Management & Citizen Grievance Redressal Portal
 
